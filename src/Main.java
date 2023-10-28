@@ -1,17 +1,60 @@
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+
+import java.util.*;
+
 public class Main {
-    public static void main(String[] args) {
-        // Press Opt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
 
-        // Press Ctrl+R or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+    private static final Scanner scanner = new Scanner(System.in);
 
-            // Press Ctrl+D to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Cmd+F8.
-            System.out.println("i = " + i);
-        }
+    /**
+     * Funzione per ottenere la stringa inserita su console utilizzando l'oggetto scanner
+     *
+     * @param messaggio stringa per il primo messaggio da visualizzare
+     * @param messaggioErrore stringa per il messaggio visualizzato dopo aver sbagliato almeno una volta
+     *                        il formato della stringa
+     * @return stringa inserita
+     */
+    public static String valueKey(String messaggio, String messaggioErrore){
+        String chiave = "";
+        boolean tentativoUno = true;
+        do {
+            if (tentativoUno)
+                System.out.println(messaggio);
+            else
+                System.out.println(messaggioErrore);
+            if (scanner.hasNextLine())
+                chiave = scanner.nextLine();
+            else
+                tentativoUno = false;
+        } while (chiave.equals(""));
+        return chiave.toUpperCase();
+    }
+
+    public static void main(String[] args) throws Exception{
+
+        //recupero della stringa da crittare nel file presente nel progetto
+        String stringaDaCrittare = File.leggiDaFile("src/TestoDaCrittare.txt");
+
+        //... inizio crittazione
+        String chiaveCrittazione = valueKey("Inserisci la stringa di crittazione {A-Za-z}:",
+                "Errore! Inserisci la stringa di crittazione" +
+                        " nel modo corretto {A-Za-z}:");
+        CifrarioVigenere cv = new CifrarioVigenere(stringaDaCrittare,
+                chiaveCrittazione
+                );
+        String crittata = cv.critta();
+        File.generaFile("src/crittata/crittata.txt", crittata);
+        System.out.println("La stringa è stata crittata correttamente");
+        //... fine crittazione e generazione del file
+
+        //... inizio decrittazione
+        String chiaveDecrittazione = valueKey("Inserisci la stringa di decrittazione {A-Za-z}:",
+                "Errore! Inserisci la stringa di decrittazione" +
+                        " nel modo corretto {A-Za-z}:");
+        String decrittata = cv.decritta(crittata, chiaveDecrittazione);
+        File.generaFile("src/decrittata/decrittata.txt", decrittata);
+        System.out.println("La stringa è stata decrittata correttamente");
+        //... fine decrittazione e generazione del file
+        scanner.close();
+        System.out.println("Fine programma");
     }
 }

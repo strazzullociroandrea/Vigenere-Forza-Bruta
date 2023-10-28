@@ -2,25 +2,23 @@
  *
  * @author Strazzullo Ciro Andrea
  * @version 1.0
- * @date 26/10/2023
+ * @date 28/10/2023
  *
- * da sistemare e continuare
  */
 
 public class CifrarioVigenere {
-    private String info;
-    private char chiave;
+    private String info, chiave, chiaveTotal;
     private final String alfabeto = "ABCDEFGHILMNOPQRSTUVZ";
-    private int indexKey;
+
     /**
      * Costruttore
      * @param info Stringa che contiene il testo da criptare
      * @param chiave Stringa che permette di criptare il file
      */
-    public CifrarioVigenere(String info, char chiave){
+    public CifrarioVigenere(String info, String chiave){
         this.info = maiuscola(replaceCaratteriInterpunzione(info));
-        this.chiave = chiave;
-        this.indexKey = alfabeto.indexOf(this.chiave) + 1;// tiene conto che l'array parte da indice 1 e non 0
+        this.chiave = maiuscola(replaceCaratteriInterpunzione(chiave));
+        this.chiaveTotal = this.generaChiaveTotale();//genero la chiave di crittazione totale
     }
 
     /**
@@ -43,6 +41,37 @@ public class CifrarioVigenere {
         return stringa.toUpperCase();
     }
 
+    /**
+     * Metodo privato per generare la chiave totale di crittatura
+     *
+     * @return chiave di crittazione completa
+     */
+    private String generaChiaveTotale(){
+        StringBuilder fin = new StringBuilder();
+        int divisione = this.info.length() / this.chiave.length();
+        int numeroRipetizioni =  (this.info.length() % this.chiave.length()) == 0 ?
+                divisione : divisione + 1;
+        for(int i=0;i<numeroRipetizioni;i++)
+            fin.append(this.chiave);
+        return fin.toString();
+    }
+
+    /**
+     * Metodo privato per generare la chiave totale di crittatura
+     *
+     * @param chiave chiave da convertire
+     * @param daConvertire stringa da convertire
+     * @return chiave di crittazione completa
+     */
+    private String generaChiaveTotale(String daConvertire, String chiave){
+        StringBuilder fin = new StringBuilder();
+        int divisione = daConvertire.length() / chiave.length();
+        int numeroRipetizioni =  (daConvertire.length() % chiave.length()) == 0 ?
+                divisione : divisione + 1;
+        for(int i=0;i<numeroRipetizioni;i++)
+            fin.append(chiave);
+        return fin.toString();
+    }
 
     /**
      * Metodo utilizzato per crittare la stringa passata come parametro al costruttore insieme alla chiave
@@ -51,9 +80,13 @@ public class CifrarioVigenere {
      */
     public String critta() {
         String total = "";
-        for(int i=0;i<this.info.length();i++){
-            int index = alfabeto.indexOf(this.info.charAt(i)) + 1;// indice char [i]
-            int sommaPosizioni = index + indexKey; //posizione finale
+        for(int i = 0; i < this.info.length(); i++){
+            char carattereStringa = this.info.charAt(i);
+            char carattereChiave = this.chiaveTotal.charAt(i);
+            int indexStringa =  alfabeto.indexOf(carattereStringa) + 1;//trovo la posizione del carattere da convertire nell'alfabeto
+            int indexChiave =  alfabeto.indexOf(carattereChiave) + 1;//trovo la posizione del carattere da usare per convertire nell'alfabeto
+            //ricerca del carattere finale
+            int sommaPosizioni = indexStringa + indexChiave;
             if(sommaPosizioni > alfabeto.length() )
                 total += (alfabeto.charAt(sommaPosizioni-alfabeto.length()-1));
             else
@@ -63,24 +96,25 @@ public class CifrarioVigenere {
     }
 
     /**
-     * Funzione pubblica per decrittare una stringa crittata con il cifrario di Cesare
+     * Metodo pubblico per decrittare una stringa crittata con il cifrario di Vigenere
      *
      * @param crittata stringa crittata
      * @param key chiave per decrittare la stringa
      * @return stringa crittata
      */
-    public static String decritta(String crittata, String key){
+    public String decritta(String crittata, String key){
         String finale = "";
-        key = key.toUpperCase();
-        String alfabeto = "ABCDEFGHILMNOPQRSTUVZ";
-        int indexKey = alfabeto.indexOf(key.charAt(0)) + 1;//indice chiave passata come parametro
-        for(int i=0;i<crittata.length();i++){
-            int index = alfabeto.indexOf(crittata.charAt(i)) + 1;// indice char [i]
-            int sottrazione = index - indexKey; //posizione finale
+        String chiaveTotal = this.generaChiaveTotale(crittata, key.toUpperCase());//genero la chiave di crittazione totale
+        for(int i = 0; i < crittata.length(); i++){
+            char carattereStringa = crittata.charAt(i);
+            char carattereChiave = chiaveTotal.charAt(i);
+            int indexStringa =  this.alfabeto.indexOf(carattereStringa) + 1;//trovo la posizione del carattere da convertire nell'alfabeto
+            int indexChiave =  this.alfabeto.indexOf(carattereChiave) + 1;//trovo la posizione del carattere da usare per convertire nell'alfabeto
+            int sottrazione = indexStringa - indexChiave; //posizione finale
             if(sottrazione > 0)
-                finale += alfabeto.charAt(sottrazione - 1);
+                finale += this.alfabeto.charAt(sottrazione - 1);
             else
-                finale += alfabeto.charAt((sottrazione + alfabeto.length() - 1));
+                finale += this.alfabeto.charAt((sottrazione + this.alfabeto.length() - 1));
         }
         return finale;
     }
